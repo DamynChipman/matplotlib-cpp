@@ -2615,6 +2615,29 @@ inline void pause(Numeric interval)
     Py_DECREF(res);
 }
 
+inline void savefig(const std::string &filename,
+                    const std::map<std::string, std::string> &keywords = {}) {
+  PyObject *pyfilename = PyString_FromString(filename.c_str());
+
+  PyObject *args = PyTuple_New(1);
+  PyTuple_SetItem(args, 0, pyfilename);
+
+  PyObject *kwargs = PyDict_New();
+  for (auto it = keywords.begin(); it != keywords.end(); ++it) {
+    PyDict_SetItemString(kwargs, it->first.c_str(),
+                         PyUnicode_FromString(it->second.c_str()));
+  }
+
+  PyObject *res = PyObject_Call(
+      detail::_interpreter::get().s_python_function_save, args, kwargs);
+  if (!res)
+    throw std::runtime_error("Call to save() failed.");
+
+  Py_DECREF(kwargs);
+  Py_DECREF(args);
+  Py_DECREF(res);
+}
+
 inline void save(const std::string& filename, const int dpi=0)
 {
     detail::_interpreter::get();
